@@ -69,28 +69,28 @@ class LegacyMrAndersonSimulator:
 
         for i in range(t_qiskit_circ.__len__()):
             if raw_data[i][0].name =='cx':
-                q_ctr = raw_data[i][1][0].index
-                q_trg = raw_data[i][1][1].index
+                q_ctr = raw_data[i][1][0]._index
+                q_trg = raw_data[i][1][1]._index
                 if q_ctr in qubits_layout and q_trg in qubits_layout:
                     raw_data[i][1][0] = qubits_layout.index(q_ctr)
                     raw_data[i][1][1] = qubits_layout.index(q_trg)
                     data.append(raw_data[i])
-                    
+
             elif raw_data[i][0].name =='measure':
-                q = raw_data[i][1][0].index
-                q = qubits_layout.index(q) 
-                c = raw_data[i][2][0].index
+                q = raw_data[i][1][0]._index
+                q = qubits_layout.index(q)
+                c = raw_data[i][2][0]._index
                 data_measure.append((q,c))
-                
+
             else:
-                q = raw_data[i][1][0].index
+                q = raw_data[i][1][0]._index
                 if q in qubits_layout:
                     if raw_data[i][0].name == 'rz':
                         n_rz = n_rz + 1
                     if raw_data[i][0].name != 'measure' and raw_data[i][0].name != 'barrier':
-                        raw_data[i][1][0] = qubits_layout.index(q) 
-                        data.append(raw_data[i]) 
-                        
+                        raw_data[i][1][0] = qubits_layout.index(q)
+                        data.append(raw_data[i])
+
         for i in range(len(data_measure)):
             swap_detector[data_measure[i][0]] = data_measure[i][1]
 
@@ -98,55 +98,55 @@ class LegacyMrAndersonSimulator:
         # Add measurements
         depth = len(data) - n_rz + 1
         circ = LegacyCircuit(nqubit, depth)
-        
+
         # Read data and apply Noisy Quantum gates
         r = np.zeros((shots, 2**nqubit))
 
         for m in range(shots):
-            
+
             for j in range(len(data)):
-                
+
                 if data[j][0].name == 'rz':
                     theta = float(data[j][0].params[0])
                     q = data[j][1][0]
                     circ.Rz(q, theta)
-                        
+
                 if data[j][0].name == 'sx':
                     q = data[j][1][0]
-                
+
                     for k in range(nqubit):
                         if k == q:
                             circ.SX(k, p[k], T1[k], T2[q])
                         else:
-                            circ.I(k) 
+                            circ.I(k)
 
                 if data[j][0].name == 'x':
                     q = data[j][1][0]
-                
+
                     for k in range(nqubit):
                         if k == q:
                             circ.X(k, p[k], T1[k], T2[q])
                         else:
-                            circ.I(k) 
+                            circ.I(k)
 
                 if data[j][0].name == 'cx':
                     q_ctr = data[j][1][0]
                     q_trg = data[j][1][1]
-                
+
                     for k in range(nqubit):
                         if k == q_ctr:
                             circ.CNOT(k, q_trg, t_cnot[k][q_trg], p_cnot[k][q_trg], p[k], p[q_trg], T1[k], T2[k], T1[q_trg], T2[q_trg])
                         elif k == q_trg:
                             pass
                         else:
-                            circ.I(k)          
+                            circ.I(k)
 
                 if data[j][0].name == 'delay':
                     q = data[j][1][0]
                     time = data[j][0].duration
                     dt = backend.configuration().dt
                     time = time * dt
-                    
+
                     for k in range(nqubit):
                         if k == q:
                             circ.relaxation(k, time, T1[k], T2[k])
@@ -155,10 +155,10 @@ class LegacyMrAndersonSimulator:
 
             for k in range(nqubit):
                 circ.bitflip(k, tm, rout[k])
-                
+
             # Use statevector method to compute ensemble of final states
             psi = circ.statevector(psi0)
-            
+
             for i in range(2**nqubit):
                 r[m][i] = (absolute(psi[i]))**2
 
@@ -166,7 +166,7 @@ class LegacyMrAndersonSimulator:
             circ.s = 0
             circ.circuit = [[1 for i in range(depth)]for j in range(nqubit)]
             circ.phi = [0 for i in range(0, nqubit)]
-         
+
         probs = array([mean(r[:, i]) for i in range (2**nqubit)])
         final_probs = self.fix_probs(probs, swap_detector, nqubit)
         return final_probs

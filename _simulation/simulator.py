@@ -151,21 +151,21 @@ class MrAndersonSimulator(object):
 
         for i in range(t_qiskit_circ.__len__()):
             if raw_data[i][0].name == 'cx':
-                q_ctr = raw_data[i][1][0].index
-                q_trg = raw_data[i][1][1].index
+                q_ctr = raw_data[i][1][0]._index
+                q_trg = raw_data[i][1][1]._index
                 if q_ctr in qubits_layout and q_trg in qubits_layout:
                     raw_data[i][1][0] = qubits_layout.index(q_ctr)
                     raw_data[i][1][1] = qubits_layout.index(q_trg)  # TODO: Change such shared raw_data is not modified.
                     data.append(raw_data[i])
 
             elif raw_data[i][0].name == 'measure':
-                q = raw_data[i][1][0].index
+                q = raw_data[i][1][0]._index
                 q = qubits_layout.index(q)
-                c = raw_data[i][2][0].index
+                c = raw_data[i][2][0]._index
                 data_measure.append((q, c))
 
             else:
-                q = raw_data[i][1][0].index
+                q = raw_data[i][1][0]._index
                 if q in qubits_layout:
                     if raw_data[i][0].name == 'rz':
                         n_rz = n_rz + 1
@@ -365,5 +365,3 @@ def _single_shot(args: dict) -> np.array:
     shot_result = np.square(np.absolute(psi))
 
     return shot_result
-
-
