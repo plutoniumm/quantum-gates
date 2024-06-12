@@ -1,8 +1,8 @@
 from .gates import Gates, NoiseFreeGates, ScaledNoiseGates
-from .gates import standard_gates, noise_free_gates, legacy_gates
-from .simulators import MrAndersonSimulator, LegacyMrAndersonSimulator
+from .gates import standard_gates, noise_free_gates
+from .simulators import MrAndersonSimulator
 from .backends import EfficientBackend, LegacyBackend
-from .circuits import EfficientCircuit, LegacyCircuit
+from .circuits import EfficientCircuit
 from .quantum_algorithms import hadamard_reverse_qft_circ, ghz_circ, qft_circ, qaoa_circ
 from .integrators import Integrator
 from .metrics import hellinger_distance
@@ -23,10 +23,10 @@ from .pulses import constant_pulse, constant_pulse_numerical, gaussian_pulse
 
 
 __all__ = ["Gates", "NoiseFreeGates", "ScaledNoiseGates"]
-__all__ += ["gates", "noise_free_gates", "legacy_gates"]
-__all__ += ["MrAndersonSimulator", "LegacyMrAndersonSimulator"]
+__all__ += ["gates", "noise_free_gates"]
+__all__ += ["MrAndersonSimulator"]
 __all__ += ["EfficientBackend", "LegacyBackend"]
-__all__ += ["EfficientCircuit", "LegacyCircuit"]
+__all__ += ["EfficientCircuit"]
 __all__ += ["hadamard_reverse_qft_circ", "ghz_circ", "qft_circ", "qaoa_circ"]
 __all__ += ["Integrator"]
 __all__ += ["hellinger_distance"]
