@@ -77,10 +77,6 @@ class MrAndersonSimulator(object):
             Returns:
                   vector of probabilities (array)
         """
-        # Warnings
-        print("Warning: The transpilation of the circuit has to be done by the user. ")
-        print("We only support a linear connectivity at the moment.")
-
         # Validate input
         self._validate_input_of_run(t_qiskit_circ, qubits_layout, psi0, shots, device_param, nqubit)
 

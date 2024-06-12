@@ -51,11 +51,11 @@ class Circuit(object):
 
         # Gate collection for a specific pulse shape.
         self.gates = gates
-    
+
     def display(self):
         """
         Display the noisy quantum circuit
-        
+
         Returns:
              None
         """
@@ -64,11 +64,11 @@ class Circuit(object):
     def apply(self, gate, i):
         """
         Apply an arbitrary single qubit gate.
-        
+
         Args:
             gate: single qubit gate to apply (array)
             i: index of the qubit (int)
-        
+
         Returns:
              None
         """
@@ -106,11 +106,11 @@ class Circuit(object):
 
     def I(self, i: int):
         """
-        Apply identity gate on qubit i 
-        
+        Apply identity gate on qubit i
+
         Args:
             i: index of the qubit
-        
+
         Returns:
              None
         """
@@ -363,6 +363,7 @@ class AlternativeCircuit(object):
         Returns:
              None
         """
+        i = i._index
         self.phi[i] = self.phi[i] + theta
 
     def bitflip(self, i: int, tm: float, rout: float):
