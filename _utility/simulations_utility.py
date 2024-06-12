@@ -30,7 +30,7 @@ def fix_counts(counts_0: dict, n_qubits: int):
     if int(counts[len(counts)-1][0], 2) != 2**n_qubits - 1:
         uno = format(2**n_qubits -1, 'b').zfill(n_qubits)
         counts.insert(len(counts), (uno, 0))
-
+        
     for j in range(2**n_qubits-1):
         # Add missing elements
         if int(counts[j+1][0], 2) != int(counts[j][0],2) + 1:
@@ -39,7 +39,7 @@ def fix_counts(counts_0: dict, n_qubits: int):
             counts.insert(j+1, (new_bin, 0))
         else:
             pass
-
+        
     return counts
 
 
@@ -110,7 +110,7 @@ def compute_Hellinger_distance(p_ng: float, p_real: float, nqubits: int) -> floa
         h_ng = h_ng + dh_ng[i]
 
     h_ng = (1/np.sqrt(2)) * np.sqrt(h_ng)
-    return h_ng
+    return h_ng  
 
 
 def create_qc_list(circuit_generator, nqubits_list, qubits_layout, backend):

@@ -146,7 +146,7 @@ class MrAndersonSimulator(object):
         raw_data = t_qiskit_circ.data
 
         for i in range(t_qiskit_circ.__len__()):
-            if raw_data[i][0].name == 'cx':
+            if raw_data[i][0].name == 'ecr':
                 q_ctr = raw_data[i][1][0]._index
                 q_trg = raw_data[i][1][1]._index
                 if q_ctr in qubits_layout and q_trg in qubits_layout:
@@ -265,7 +265,7 @@ class MrAndersonSimulator(object):
 
 def _apply_gates_on_circuit(
         data: list,
-        circ: Circuit or StandardCircuit or EfficientCircuit,
+        circ: Circuit or StandardCircuit or EfficientCircuit, # type: ignore
         device_param: dict):
     """ Applies the operations specified in data on the circuit.
 
@@ -278,13 +278,13 @@ def _apply_gates_on_circuit(
     """
 
     # Unpack dict
-    T1, T2, p, rout, p_cnot, t_cnot, tm, dt = (
+    T1, T2, p, rout, p_int, t_int, tm, dt = (
         device_param["T1"],
         device_param["T2"],
         device_param["p"],
         device_param["rout"],
-        device_param["p_cnot"],
-        device_param["t_cnot"],
+        device_param["p_int"],
+        device_param["t_int"],
         device_param["tm"],
         device_param["dt"][0]
     )
@@ -295,11 +295,11 @@ def _apply_gates_on_circuit(
 
         if data[j][0].name == 'rz':
             theta = float(data[j][0].params[0])
-            q = data[j][1][0]
+            q = data[j][1][0]._index
             circ.Rz(q, theta)
 
         if data[j][0].name == 'sx':
-            q = data[j][1][0]
+            q = data[j][1][0]._index
             for k in range(nqubit):
                 if k == q:
                     circ.SX(k, p[k], T1[k], T2[q])
@@ -307,26 +307,37 @@ def _apply_gates_on_circuit(
                     circ.I(k)
 
         if data[j][0].name == 'x':
-            q = data[j][1][0]
+            q = data[j][1][0]._index
             for k in range(nqubit):
                 if k == q:
                     circ.X(k, p[k], T1[k], T2[q])
                 else:
                     circ.I(k)
 
-        if data[j][0].name == 'cx':
-            q_ctr = data[j][1][0]
-            q_trg = data[j][1][1]
+        if data[j][0].name == 'ecr':
+            q_ctr = data[j][1][0]._index # index control qubit
+            q_trg = data[j][1][1]._index # index target qubit
             for k in range(nqubit):
                 if k == q_ctr:
-                    circ.CNOT(k, q_trg, t_cnot[k][q_trg], p_cnot[k][q_trg], p[k], p[q_trg], T1[k], T2[k], T1[q_trg], T2[q_trg])
+                    circ.ECR(k, q_trg, t_int[k][q_trg], p_int[k][q_trg], p[k], p[q_trg], T1[k], T2[k], T1[q_trg], T2[q_trg])
+                elif k == q_trg:
+                    pass
+                else:
+                    circ.I(k)
+
+        if data[j][0].name == 'cx':
+            q_ctr = data[j][1][0]._index # index control qubit
+            q_trg = data[j][1][1]._index # index target qubit
+            for k in range(nqubit):
+                if k == q_ctr:
+                    circ.CNOT(k, q_trg, t_int[k][q_trg], p_int[k][q_trg], p[k], p[q_trg], T1[k], T2[k], T1[q_trg], T2[q_trg])
                 elif k == q_trg:
                     pass
                 else:
                     circ.I(k)
 
         if data[j][0].name == 'delay':
-            q = data[j][1][0]
+            q = data[j][1][0]._index
             time = data[j][0].duration * dt
             for k in range(nqubit):
                 if k == q:
