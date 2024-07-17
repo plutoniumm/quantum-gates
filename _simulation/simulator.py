@@ -1,5 +1,6 @@
 """Performs simulations with the Noisy quantum gates approach.
 """
+from time import time
 import numpy as np
 import copy
 import typing
@@ -227,13 +228,32 @@ class MrAndersonSimulator(object):
             p.join()
 
         else:
+            shotted = 0
+            five_pct = shots / 20
+            total_time = 0
             for arg in arg_list:
-                # Compute
+                start = time()
+                shotted += 1
                 shot_result = _single_shot(arg)
 
-                # Add shot
                 r_sum += shot_result
                 r_square_sum += np.square(shot_result)
+
+                end = time()
+                total_time += end - start
+
+                fiver = shotted/five_pct % 5 < 0.0001
+                if fiver:
+                    print(f"\r\033[3A", end="")
+                    print("\033[K\033[U")
+
+                    print(f"{shotted*5/five_pct:.1f}% ({shotted}/{shots}) done")
+                    remaining = shots - shotted
+                    avg_time = total_time / shotted
+                    print(f"\t{(avg_time * remaining / 60):.2f} min remaining")
+                if shotted == 100:
+                    avg_time = total_time / shotted
+                    print(f"Est for {shots} shots: {(avg_time * shots / 60):.2f} min")
 
         # Calculate result
         r_mean = r_sum / shots
